@@ -7,50 +7,55 @@ CFLAGS =  -g -O2 -Wall -Wmissing-prototypes -std=c99 -ffast-math -fno-strict-ali
 CXXFLAGS =  -g -O2 -Wall -fno-strict-aliasing
 
 GCC_VERSION = 4.2
-IPHONEOS_DEPLOYMENT_TARGET = 5.0
-MACOSX_DEPLOYMENT_TARGET = 10.6
+IPHONEOS_DEPLOYMENT_TARGET = 8.0
+MACOSX_DEPLOYMENT_TARGET = 10.11
 
 PLATFORM_SIM = iPhoneSimulator
 PLATFORM_PHONE = iPhoneOS
 
 ARCH_SIM = i686
-ARCH_PHONE = armv7
+ARCH_PHONE = arm64
 
+DEVELOPER=/Applications/Xcode.app/Contents/Developer
 PLATFORM_SIM_DEVELOPER_BIN_DIR = /Developer/Platforms/$(PLATFORM_SIM).platform/Developer/usr/bin
 PLATFORM_PHONE_DEVELOPER_BIN_DIR = /Developer/Platforms/$(PLATFORM_PHONE).platform/Developer/usr/bin
 
-SDKROOT_SIM = /Developer/Platforms/$(PLATFORM_SIM).platform/Developer/SDKs/$(PLATFORM_SIM)$(IPHONEOS_DEPLOYMENT_TARGET).sdk
-SDKROOT_PHONE = /Developer/Platforms/$(PLATFORM_PHONE).platform/Developer/SDKs/$(PLATFORM_PHONE)$(IPHONEOS_DEPLOYMENT_TARGET).sdk
+SDKROOT_SIM = $(DEVELOPER)/Platforms/$(PLATFORM_SIM).platform/Developer/SDKs/$(PLATFORM_SIM).sdk
+SDKROOT_PHONE = $(DEVELOPER)/Platforms/$(PLATFORM_PHONE).platform/Developer/SDKs/$(PLATFORM_PHONE).sdk
 
-EXTRA_CFLAGS_SIM += -arch $(ARCH_SIM) -pipe -mdynamic-no-pic -fvisibility=hidden $(INCLUDE) -isysroot $(SDKROOT_SIM)
+EXTRA_CFLAGS_SIM += -arch $(ARCH_SIM) -pipe -mdynamic-no-pic -fvisibility=hidden -D__ANSI__ -D_GNU_SOURCE -DDISABLE_PERF_MEASUREMENT $(INCLUDE) -isysroot $(SDKROOT_SIM)
 EXTRA_LDFLAGS_SIM += -arch $(ARCH_SIM) -isysroot $(SDKROOT_SIM) -Wl,-dead_strip
-EXTRA_CFLAGS_SIM += -D__IPHONE_OS_VERSION_MIN_REQUIRED=20000 -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
+EXTRA_CFLAGS_SIM += -D__IPHONE_OS_VERSION_MIN_REQUIRED=50000 -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
 EXTRA_LDFLAGS_SIM += -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
+
 
 # Xcode complains about the -mdynamic-no-pic with an Apple Mach-O Linker Warning, so removed
 #EXTRA_CFLAGS_PHONE += -arch $(ARCH_PHONE) -pipe -mdynamic-no-pic -fvisibility=hidden $(INCLUDE) -isysroot $(SDKROOT_PHONE)
-EXTRA_CFLAGS_PHONE += -arch $(ARCH_PHONE) -pipe -fvisibility=hidden $(INCLUDE) -isysroot $(SDKROOT_PHONE)
+
+EXTRA_CFLAGS_PHONE += -arch $(ARCH_PHONE) -pipe -fvisibility=hidden -D__ANSI__ -D_GNU_SOURCE -DDISABLE_PERF_MEASUREMENT $(INCLUDE) -isysroot $(SDKROOT_PHONE)
 EXTRA_LDFLAGS_PHONE += -arch $(ARCH_PHONE) -isysroot $(SDKROOT_PHONE) -Wl,-dead_strip
 EXTRA_CFLAGS_PHONE += -miphoneos-version-min=$(IPHONEOS_DEPLOYMENT_TARGET)
 EXTRA_LDFLAGS_PHONE += -miphoneos-version-min=$(IPHONEOS_DEPLOYMENT_TARGET)
 
+
 AR_SIM = $(PLATFORM_SIM_DEVELOPER_BIN_DIR)/ar
 AR_PHONE = $(PLATFORM_PHONE_DEVELOPER_BIN_DIR)/ar
 
-CC_SIM = $(PLATFORM_SIM_DEVELOPER_BIN_DIR)/gcc
-CC_PHONE = $(PLATFORM_PHONE_DEVELOPER_BIN_DIR)/gcc
+#如果在xcode的目录下没有以下编译器，可以从/usr/bin中拷贝过来，或者直接更改此处编译器路径为/usr/bin
+CC_SIM = $(DEVELOPER)/usr/bin/clang
+CC_PHONE = $(DEVELOPER)/usr/bin/clang
 
 CFLAGS_SIM = $(CFLAGS) $(EXTRA_CFLAGS_SIM)
 LDFLAGS_SIM = $(EXTRA_LDFLAGS_SIM)
-CXX_SIM = $(PLATFORM_SIM_DEVELOPER_BIN_DIR)/g++
+CXX_SIM = $(DEVELOPER)/usr/bin/clang++
 CXXFLAGS_SIM += $(EXTRA_CFLAGS_SIM) -fvisibility-inlines-hidden
-LIBTOOL_SIM = /Developer/Platforms/$(PLATFORM_SIM).platform/Developer/usr/bin/libtool
+LIBTOOL_SIM = $(DEVELOPER)/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool
 
 CFLAGS_PHONE = $(CFLAGS) $(EXTRA_CFLAGS_PHONE)
 LDFLAGS_PHONE += $(EXTRA_LDFLAGS_PHONE)
-CXX_PHONE = $(PLATFORM_PHONE_DEVELOPER_BIN_DIR)/g++
+CXX_PHONE = $(DEVELOPER)/usr/bin/clang++
 CXXFLAGS_PHONE += $(EXTRA_CFLAGS_PHONE) -fvisibility-inlines-hidden
-LIBTOOL_PHONE = /Developer/Platforms/$(PLATFORM_PHONE).platform/Developer/usr/bin/libtool
+LIBTOOL_PHONE = $(DEVELOPER)/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool
 
 TARGET = freeimage
 STATICLIB_SIM = lib$(TARGET)-iphonesimulator.a
